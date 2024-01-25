@@ -37,6 +37,7 @@ tasks {
     shadowJar {
         relocate("me.dave.chatcolorhandler", "me.dave.playerhide.libraries.chatcolor")
         relocate("me.dave.platyutils", "me.dave.playerhide.libraries.platyutils")
+        relocate("com.github.Tofaa2", "me.dave.playerhide.libraries.tofaa2")
 
         minimize()
 
