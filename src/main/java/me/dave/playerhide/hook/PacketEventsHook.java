@@ -12,7 +12,6 @@ import com.github.retrooper.packetevents.protocol.player.EquipmentSlot;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityEquipment;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
-import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
 import me.dave.platyutils.hook.Hook;
 import me.dave.playerhide.PlayerHide;
 import me.dave.playerhide.visibility.VisibilityState;
@@ -20,7 +19,6 @@ import me.tofaa.entitylib.EntityLib;
 import me.tofaa.entitylib.meta.Metadata;
 import me.tofaa.entitylib.meta.types.PlayerMeta;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.Nullable;
@@ -72,9 +70,9 @@ public class PacketEventsHook extends Hook {
         equipment.add(new Equipment(EquipmentSlot.HELMET, new ItemStack.Builder().type(ItemTypes.AIR).build()));
         equipment.add(new Equipment(EquipmentSlot.CHEST_PLATE, new ItemStack.Builder().type(ItemTypes.AIR).build()));
         equipment.add(new Equipment(EquipmentSlot.LEGGINGS, new ItemStack.Builder().type(ItemTypes.AIR).build()));
-        if (player.getInventory().getBoots() == null) {
-            equipment.add(new Equipment(EquipmentSlot.BOOTS, new ItemStack.Builder().type(ItemTypes.GOLDEN_BOOTS).build()));
-        }
+        equipment.add(new Equipment(EquipmentSlot.BOOTS, player.getInventory().getBoots() != null ? SpigotConversionUtil.fromBukkitItemStack(player.getInventory().getBoots()) : new ItemStack.Builder().type(ItemTypes.GOLDEN_BOOTS).build()));
+        equipment.add(new Equipment(EquipmentSlot.MAIN_HAND, new ItemStack.Builder().type(ItemTypes.AIR).build()));
+        equipment.add(new Equipment(EquipmentSlot.OFF_HAND, new ItemStack.Builder().type(ItemTypes.AIR).build()));
 
         WrapperPlayServerEntityEquipment packet = new WrapperPlayServerEntityEquipment(entityId, equipment);
         viewers.forEach(viewer -> PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet));
@@ -92,6 +90,8 @@ public class PacketEventsHook extends Hook {
         equipment.add(new Equipment(EquipmentSlot.CHEST_PLATE, SpigotConversionUtil.fromBukkitItemStack(inventory.getChestplate())));
         equipment.add(new Equipment(EquipmentSlot.LEGGINGS, SpigotConversionUtil.fromBukkitItemStack(inventory.getLeggings())));
         equipment.add(new Equipment(EquipmentSlot.BOOTS, SpigotConversionUtil.fromBukkitItemStack(inventory.getBoots())));
+        equipment.add(new Equipment(EquipmentSlot.MAIN_HAND, SpigotConversionUtil.fromBukkitItemStack(inventory.getItemInMainHand())));
+        equipment.add(new Equipment(EquipmentSlot.OFF_HAND, SpigotConversionUtil.fromBukkitItemStack(inventory.getItemInOffHand())));
 
         WrapperPlayServerEntityEquipment packet = new WrapperPlayServerEntityEquipment(entityId, equipment);
         viewers.forEach(viewer -> PacketEvents.getAPI().getPlayerManager().sendPacket(viewer, packet));
@@ -138,17 +138,15 @@ public class PacketEventsHook extends Hook {
                 Player player = findPlayerByEntityId(packet.getEntityId());
                 if (player != null && player.getUniqueId() != event.getUser().getUUID()) {
                     if (PlayerHide.getInstance().getVisibilityManager().getState(player.getUniqueId()).equals(VisibilityState.BOOTS_ONLY)) {
-                        PlayerHide.getInstance().getHook(HookId.PACKET_EVENTS.toString()).ifPresent(hook -> {
-                            List<Equipment> equipment = new ArrayList<>();
-                            equipment.add(new Equipment(EquipmentSlot.HELMET, new ItemStack.Builder().type(ItemTypes.AIR).build()));
-                            equipment.add(new Equipment(EquipmentSlot.CHEST_PLATE, new ItemStack.Builder().type(ItemTypes.AIR).build()));
-                            equipment.add(new Equipment(EquipmentSlot.LEGGINGS, new ItemStack.Builder().type(ItemTypes.AIR).build()));
-                            if (player.getInventory().getBoots() == null) {
-                                equipment.add(new Equipment(EquipmentSlot.BOOTS, new ItemStack.Builder().type(ItemTypes.GOLDEN_BOOTS).build()));
-                            }
+                        List<Equipment> equipment = new ArrayList<>();
+                        equipment.add(new Equipment(EquipmentSlot.HELMET, new ItemStack.Builder().type(ItemTypes.AIR).build()));
+                        equipment.add(new Equipment(EquipmentSlot.CHEST_PLATE, new ItemStack.Builder().type(ItemTypes.AIR).build()));
+                        equipment.add(new Equipment(EquipmentSlot.LEGGINGS, new ItemStack.Builder().type(ItemTypes.AIR).build()));
+                        equipment.add(new Equipment(EquipmentSlot.BOOTS, player.getInventory().getBoots() != null ? SpigotConversionUtil.fromBukkitItemStack(player.getInventory().getBoots()) : new ItemStack.Builder().type(ItemTypes.GOLDEN_BOOTS).build()));
+                        equipment.add(new Equipment(EquipmentSlot.MAIN_HAND, new ItemStack.Builder().type(ItemTypes.AIR).build()));
+                        equipment.add(new Equipment(EquipmentSlot.OFF_HAND, new ItemStack.Builder().type(ItemTypes.AIR).build()));
 
-                            packet.setEquipment(equipment);
-                        });
+                        packet.setEquipment(equipment);
                     }
                 }
             } else if (event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
@@ -157,11 +155,9 @@ public class PacketEventsHook extends Hook {
                 Player player = findPlayerByEntityId(packet.getEntityId());
                 if (player != null && player.getUniqueId() != event.getUser().getUUID()) {
                     if (PlayerHide.getInstance().getVisibilityManager().getState(player.getUniqueId()).equals(VisibilityState.BOOTS_ONLY)) {
-                        PlayerHide.getInstance().getHook(HookId.PACKET_EVENTS.toString()).ifPresent(hook -> {
-                            PlayerMeta playerMeta = PacketEventsHook.convertBukkitPlayer(player);
-                            playerMeta.setInvisible(true);
-                            packet.setEntityMetadata(playerMeta);
-                        });
+                        PlayerMeta playerMeta = convertBukkitPlayer(player);
+                        playerMeta.setInvisible(true);
+                        packet.setEntityMetadata(playerMeta);
                     }
                 }
             }
