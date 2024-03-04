@@ -15,9 +15,11 @@ import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.dave.platyutils.hook.Hook;
 import me.dave.playerhide.PlayerHide;
 import me.dave.playerhide.visibility.VisibilityState;
+import me.tofaa.entitylib.APIConfig;
 import me.tofaa.entitylib.EntityLib;
 import me.tofaa.entitylib.meta.Metadata;
 import me.tofaa.entitylib.meta.types.PlayerMeta;
+import me.tofaa.entitylib.spigot.SpigotEntityLibPlatform;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.PlayerInventory;
@@ -38,7 +40,12 @@ public class PacketEventsHook extends Hook {
         PacketEventsAPI<?> api = PacketEvents.getAPI();
         api.getEventManager().registerListener(new PacketEventsListener());
 
-        EntityLib.init(api);
+        SpigotEntityLibPlatform platform = new SpigotEntityLibPlatform(PlayerHide.getInstance());
+        APIConfig settings = new APIConfig(PacketEvents.getAPI())
+            .trackPlatformEntities()
+            .usePlatformLogger();
+
+        EntityLib.init(platform, settings);
     }
 
     public void setInvisible(Player viewer, Player player) {

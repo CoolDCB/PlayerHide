@@ -10,19 +10,20 @@ version = "1.0.1"
 repositories {
     mavenCentral()
     mavenLocal()
-    maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
+    maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") } // Spigot
     maven { url = uri("https://repo.codemc.io/repository/maven-releases/") } // PacketEvents
+    maven { url = uri("https://repo.smrt-1.com/releases/") } // PlatyUtils
+    maven { url = uri("https://repo.smrt-1.com/snapshots/") } // PlatyUtils
     maven { url = uri("https://maven.enginehub.org/repo/") } // WorldGuard
-    maven { url = uri("https://jitpack.io") } // ChatColorHandler
+    maven { url = uri("https://jitpack.io") } // ChatColorHandler, EntityLib
 }
 
 dependencies {
     compileOnly("org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT")
-    compileOnly("com.github.retrooper.packetevents:spigot:2.2.0")
+    compileOnly("com.github.retrooper.packetevents:spigot:2.2.1")
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.9")
-    implementation("com.github.CoolDCB:ChatColorHandler:v2.5.0")
-    implementation("com.github.Tofaa2:EntityLib:v1.2-SNAPSHOT")
-    implementation(files("libs/PlatyUtils-0.1.0.29.jar"))
+    implementation("com.github.Tofaa2.EntityLib:spigot:2.1.0-SNAPSHOT")
+    implementation("me.dave:PlatyUtils:0.1.0.53")
 }
 
 java {
