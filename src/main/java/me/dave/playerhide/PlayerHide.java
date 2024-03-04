@@ -65,6 +65,7 @@ public final class PlayerHide extends SpigotPlugin {
         return visibilityManager;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void addHook(String pluginName, Runnable runnable, boolean requireEnabled) {
         PluginManager pluginManager = this.getServer().getPluginManager();
         Plugin var5 = pluginManager.getPlugin(pluginName);
