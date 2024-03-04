@@ -1,10 +1,10 @@
 package me.dave.playerhide;
 
-import com.github.retrooper.packetevents.PacketEvents;
 import me.dave.platyutils.plugin.SpigotPlugin;
 import me.dave.playerhide.hook.HookId;
 import me.dave.playerhide.hook.PacketEventsHook;
 import me.dave.playerhide.hook.WorldGuardHook;
+import me.dave.playerhide.listeners.PlayerListener;
 import me.dave.playerhide.visibility.VisibilityManager;
 import me.dave.playerhide.visibility.VisibilityState;
 import org.bukkit.Bukkit;
@@ -28,6 +28,8 @@ public final class PlayerHide extends SpigotPlugin {
     @Override
     public void onEnable() {
         visibilityManager = new VisibilityManager();
+
+        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
 
         addHook("packetevents", () -> registerHook(new PacketEventsHook()));
 
